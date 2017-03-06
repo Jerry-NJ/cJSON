@@ -186,6 +186,7 @@ typedef struct
 
 /* check if the given size is left to read in a given parse buffer (including the current byte */
 #define can_read(buffer, size) ((buffer != NULL) && ((buffer->offset + size) <= buffer->length))
+#define cannot_read(buffer, size) (!can_read(buffer, size))
 /* get a pointer to the buffer at the position */
 #define buffer_at_offset(buffer) (buffer->content + buffer->offset)
 
@@ -207,7 +208,7 @@ static const unsigned char *parse_number(cJSON * const item, parse_buffer * cons
      * and strtod only works with zero terminated strings */
     for (i = 0; i < (sizeof(number_c_string) - 1); i++)
     {
-        if (!can_read(input_buffer, 1))
+        if (cannot_read(input_buffer, 1))
         {
             break;
         }
@@ -1198,7 +1199,7 @@ static const unsigned char *parse_array(cJSON * const item, parse_buffer * const
     cJSON *head = NULL; /* head of the linked list */
     cJSON *current_item = NULL;
 
-    if (!can_read(input_buffer, 1) || (buffer_at_offset(input_buffer)[0] != '['))
+    if (cannot_read(input_buffer, 1) || (buffer_at_offset(input_buffer)[0] != '['))
     {
         /* not an array */
         *error_pointer = buffer_at_offset(input_buffer);
@@ -1250,7 +1251,7 @@ static const unsigned char *parse_array(cJSON * const item, parse_buffer * const
     }
     while (can_read(input_buffer, 1) && (buffer_at_offset(input_buffer)[0] == ','));
 
-    if (!can_read(input_buffer, 1) || buffer_at_offset(input_buffer)[0] != ']')
+    if (cannot_read(input_buffer, 1) || buffer_at_offset(input_buffer)[0] != ']')
     {
         *error_pointer = buffer_at_offset(input_buffer);
         goto fail; /* expected end of array */
@@ -1340,7 +1341,7 @@ static const unsigned char *parse_object(cJSON * const item, parse_buffer * cons
     cJSON *current_item = NULL;
     const unsigned char *content_pointer = NULL;
 
-    if (!can_read(input_buffer, 1) || (buffer_at_offset(input_buffer)[0] != '{'))
+    if (cannot_read(input_buffer, 1) || (buffer_at_offset(input_buffer)[0] != '{'))
     {
         *error_pointer = buffer_at_offset(input_buffer);
         goto fail; /* not an object */
@@ -1394,7 +1395,7 @@ static const unsigned char *parse_object(cJSON * const item, parse_buffer * cons
         current_item->string = current_item->valuestring;
         current_item->valuestring = NULL;
 
-        if (!can_read(input_buffer, 1) || (buffer_at_offset(input_buffer)[0] != ':'))
+        if (cannot_read(input_buffer, 1) || (buffer_at_offset(input_buffer)[0] != ':'))
         {
             *error_pointer = buffer_at_offset(input_buffer);
             goto fail; /* invalid object */
@@ -1411,7 +1412,7 @@ static const unsigned char *parse_object(cJSON * const item, parse_buffer * cons
     }
     while (can_read(input_buffer, 1) && (buffer_at_offset(input_buffer)[0] == ','));
 
-    if (!can_read(input_buffer, 1) || (buffer_at_offset(input_buffer)[0] != '}'))
+    if (cannot_read(input_buffer, 1) || (buffer_at_offset(input_buffer)[0] != '}'))
     {
         *error_pointer = buffer_at_offset(input_buffer);
         goto fail; /* expected end of object */
