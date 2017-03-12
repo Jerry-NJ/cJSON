@@ -208,7 +208,7 @@ static const unsigned char *parse_number(cJSON * const item, parse_buffer * cons
      * and strtod only works with zero terminated strings */
     for (i = 0; i < (sizeof(number_c_string) - 1); i++)
     {
-        if (cannot_read(input_buffer, 1))
+        if (cannot_read(input_buffer, i))
         {
             break;
         }
